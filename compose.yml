@@ -1,0 +1,15 @@
+services:
+  2gis-mcp:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: runtime
+    image: 2gis-mcp:latest
+    container_name: 2gis-mcp-server
+    environment:
+      - DGIS_API_KEY=${DGIS_API_KEY}
+      - DGIS_SEARCH_API_URL=${DGIS_SEARCH_API_URL}
+    command: ["--transport", "sse", "--debug"]
+    ports:
+      - 8000:8000
+    restart: unless-stopped

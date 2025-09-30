@@ -1,0 +1,6 @@
+### 2GIS Categories API - Search categories (rubrics)
+### Documentation: https://docs.2gis.com/en/api/search/categories/overview
+
+### Search restaurant categories
+GET {{baseUrl}}/2.0/catalog/rubric/search?q=restaurant&region_id=1&key={{apiKey}}
+Accept: application/json

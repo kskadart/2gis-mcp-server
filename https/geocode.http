@@ -1,0 +1,12 @@
+### 2GIS Geocoder API - Geocode addresses
+### Documentation: https://docs.2gis.com/en/api/search/geocoder/overview
+
+### Geocode address - Dubai, Burj Khalifa
+GET {{baseUrl}}/3.0/items/geocode?q=Dubai, Burj Khalifa&key={{apiKey}}
+Accept: application/json
+
+###
+
+### Geocode with location bias
+GET {{baseUrl}}/3.0/items/geocode?q=Dubai, Burj Khalifa&location={{exampleLocation}}&key={{apiKey}}
+Accept: application/json

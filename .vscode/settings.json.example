@@ -1,0 +1,9 @@
+{
+    "rest-client.environmentVariables": {
+        "$shared": {
+            "baseUrl": "https://catalog.api.2gis.com",
+            "apiKey": "your_api_key_here",
+            "examplePoint": "37.545423,55.740693"
+        }
+    }
+}

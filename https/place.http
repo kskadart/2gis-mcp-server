@@ -1,0 +1,12 @@
+### 2GIS Place API - Search for places
+### Documentation: https://docs.2gis.com/en/api/search/places/overview
+
+### Search for cafes near a location (Moscow)
+GET {{baseUrl}}/3.0/items?q=cafe&point={{exampleLocation}}&location={{exampleLocation}}&radius=500&sort=distance&key={{apiKey}}
+Accept: application/json
+
+###
+
+### Search for specific place by name
+GET {{baseUrl}}/3.0/items?q=Starbucks&point={{exampleLocation}}&radius=5000&location={{exampleLocation}}&key={{apiKey}}
+Accept: application/json

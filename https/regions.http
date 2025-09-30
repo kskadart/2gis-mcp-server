@@ -1,0 +1,6 @@
+### 2GIS Regions API - Search regions
+### Documentation: https://docs.2gis.com/en/api/search/regions/overview
+
+### Search for Moscow region
+GET {{baseUrl}}/2.0/region/search?q=Moscow&key={{apiKey}}
+Accept: application/json

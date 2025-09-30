@@ -1,0 +1,6 @@
+### 2GIS Suggest API - Get search suggestions
+### Documentation: https://docs.2gis.com/ru/api/search/suggest/overview
+
+### Get suggestions for partial query
+GET {{baseUrl}}/3.0/suggests?q=star&location={{exampleLocation}}&key={{apiKey}}
+Accept: application/json

@@ -1,0 +1,18 @@
+[project]
+name = "2gis-mcp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = "==3.13.*"
+dependencies = [
+    "httpx==0.28.1",
+    "mcp[cli]==1.13.1",
+    "pydantic==2.11.7",
+    "pydantic-settings==2.10.1",
+]
+
+[dependency-groups]
+dev = [
+    "black==25.1.0",
+    "ruff==0.12.12",
+]

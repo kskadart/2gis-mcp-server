@@ -1,0 +1,6 @@
+### 2GIS Markers API - Get markers for map visualization
+### Documentation: https://docs.2gis.com/en/api/search/markers/overview
+
+### Get ATM markers
+GET {{baseUrl}}/3.0/markers?q=ATM&location={{exampleLocation}}&key={{apiKey}}
+Accept: application/json
