@@ -2,7 +2,7 @@
 2GIS Search MCP Server
 
 This server provides a Machine Control Protocol (MCP) interface for interacting with the 2GIS Search APIs.
-The Server includes next APIs: 
+The Server includes next APIs:
 - Places
 - Geocoder
 - Suggest
@@ -15,21 +15,18 @@ Original API doc: https://docs.2gis.com/en/api/search/overview
 
 from typing import Any
 import httpx
-from mcp.server.fastmcp import FastMCP
+
 from src.settings import dgis_api_settings
 from src.logger import logger
 
 
-mcp = FastMCP("2gis-search-mcp", host="0.0.0.0", port=8000)
-
-
 class DGisSearchAPI:
     """2GIS API client class"""
-    
+
     def __init__(self, api_key: str, url: str):
         """
         Initialize 2GIS API client
-        
+
         Args:
             api_key: API key for 2GIS API
             url: Base URL for 2GIS API
@@ -42,7 +39,7 @@ class DGisSearchAPI:
         Place API
 
         Args:
-            query: str - place 
+            query: str - place
             location: str - location in format "latitude,longitude"
             point: str - point in format "latitude,longitude"
             radius: int - radius in meters (default: 1000)
@@ -51,7 +48,7 @@ class DGisSearchAPI:
             dict - response from 2GIS Place API
         """
         logger.info(f"Place API request: query='{query}', location='{location}', point='{point}', radius={radius}")
-        
+
         try:
             response: httpx.Response = httpx.get(
                 f"{self.url}/3.0/items",
@@ -70,7 +67,7 @@ class DGisSearchAPI:
         except httpx.HTTPError as e:
             logger.error(f"Place API error: {str(e)}")
             raise
-            
+
     def geocoder_api(self, query: str, location: str | None = None) -> dict[str, Any]:
         """
         Geocoder API
@@ -82,7 +79,7 @@ class DGisSearchAPI:
             dict - response from 2GIS Geocoder API
         """
         logger.info(f"Geocoder API request: query='{query}', location='{location}'")
-        
+
         try:
             response: httpx.Response = httpx.get(
                 f"{self.url}/3.0/items/geocode",
@@ -98,7 +95,7 @@ class DGisSearchAPI:
         except httpx.HTTPError as e:
             logger.error(f"Geocoder API error: {str(e)}")
             raise
-        
+
     def suggest_api(self, query: str, location: str | None = None) -> dict[str, Any]:
         """
         Suggest API
@@ -110,7 +107,7 @@ class DGisSearchAPI:
             dict - response from 2GIS Suggest API
         """
         logger.info(f"Suggest API request: query='{query}', location='{location}'")
-        
+
         try:
             response: httpx.Response = httpx.get(
                 f"{self.url}/3.0/items/suggests",
@@ -126,7 +123,7 @@ class DGisSearchAPI:
         except httpx.HTTPError as e:
             logger.error(f"Suggest API error: {str(e)}")
             raise
-        
+
     def categories_api(self, query: str, region_id: int = 1) -> dict[str, Any]:
         """
         Categories API
@@ -138,7 +135,7 @@ class DGisSearchAPI:
             dict - response from 2GIS Categories API
         """
         logger.info(f"Categories API request: query='{query}', region_id={region_id}")
-        
+
         try:
             response: httpx.Response = httpx.get(
                 f"{self.url}/2.0/catalog/rubric/search",
@@ -154,7 +151,7 @@ class DGisSearchAPI:
         except httpx.HTTPError as e:
             logger.error(f"Categories API error: {str(e)}")
             raise
-        
+
     def regions_api(self, query: str) -> dict[str, Any]:
         """
         Regions API
@@ -165,7 +162,7 @@ class DGisSearchAPI:
             dict - response from 2GIS Regions API
         """
         logger.info(f"Regions API request: query='{query}'")
-        
+
         try:
             response: httpx.Response = httpx.get(
                 f"{self.url}/2.0/region/search",
@@ -180,7 +177,7 @@ class DGisSearchAPI:
         except httpx.HTTPError as e:
             logger.error(f"Regions API error: {str(e)}")
             raise
-        
+
     def markers_api(self, query: str, location: str | None = None) -> dict[str, Any]:
         """
         Markers API
@@ -192,7 +189,7 @@ class DGisSearchAPI:
             dict - response from 2GIS Markers API
         """
         logger.info(f"Markers API request: query='{query}', location='{location}'")
-        
+
         try:
             response: httpx.Response = httpx.get(
                 f"{self.url}/3.0/markers",
@@ -210,14 +207,10 @@ class DGisSearchAPI:
             raise
 
 
-dgis_search_api = DGisSearchAPI(
-    api_key=dgis_api_settings.api_key,
-    url=dgis_api_settings.search_api_url
-)
+dgis_search_api = DGisSearchAPI(api_key=dgis_api_settings.api_key, url=dgis_api_settings.search_api_url)
 
 
-@mcp.tool()
-def categories_api(query: str, region_id: int = 1) -> dict[str, Any]:
+def categories_tool(query: str, region_id: int = 1) -> dict[str, Any]:
     """
     Categories API
 
@@ -228,7 +221,7 @@ def categories_api(query: str, region_id: int = 1) -> dict[str, Any]:
         dict - response from 2GIS Categories API
     """
     logger.info(f"MCP Categories API request: query='{query}', region_id={region_id}")
-    
+
     try:
         result = dgis_search_api.categories_api(query, region_id)
         logger.debug("MCP Categories API response received successfully")
@@ -238,8 +231,7 @@ def categories_api(query: str, region_id: int = 1) -> dict[str, Any]:
         raise
 
 
-@mcp.tool()
-def geocoder_api(query: str, location: str | None = None) -> dict[str, Any]:
+def geocoder_tool(query: str, location: str | None = None) -> dict[str, Any]:
     """
     Geocoder API
 
@@ -250,7 +242,7 @@ def geocoder_api(query: str, location: str | None = None) -> dict[str, Any]:
         dict - response from 2GIS Geocoder API
     """
     logger.info(f"MCP Geocoder API request: query='{query}', location='{location}'")
-    
+
     try:
         result = dgis_search_api.geocoder_api(query, location)
         logger.debug("MCP Geocoder API response received successfully")
@@ -260,8 +252,7 @@ def geocoder_api(query: str, location: str | None = None) -> dict[str, Any]:
         raise
 
 
-@mcp.tool()
-def markers_api(query: str, location: str | None = None) -> dict[str, Any]:
+def markers_tool(query: str, location: str | None = None) -> dict[str, Any]:
     """
     Markers API
 
@@ -272,7 +263,7 @@ def markers_api(query: str, location: str | None = None) -> dict[str, Any]:
         dict - response from 2GIS Markers API
     """
     logger.info(f"MCP Markers API request: query='{query}', location='{location}'")
-    
+
     try:
         result = dgis_search_api.markers_api(query, location)
         logger.debug("MCP Markers API response received successfully")
@@ -282,13 +273,12 @@ def markers_api(query: str, location: str | None = None) -> dict[str, Any]:
         raise
 
 
-@mcp.tool()
-def place_api(query: str, location: str, point: str, radius: int = 1000) -> dict[str, Any]:
+def place_tool(query: str, location: str, point: str, radius: int = 1000) -> dict[str, Any]:
     """
     Place API
 
     Args:
-        query: str - place 
+        query: str - place
         location: str - location in format "latitude,longitude"
         point: str - point in format "latitude,longitude"
         radius: int - radius in meters
@@ -297,7 +287,7 @@ def place_api(query: str, location: str, point: str, radius: int = 1000) -> dict
         dict - response from 2GIS Place API
     """
     logger.info(f"MCP Place API request: query='{query}', location='{location}', point='{point}', radius={radius}")
-    
+
     try:
         result = dgis_search_api.place_api(query, location, point, radius)
         logger.debug("MCP Place API response received successfully")
@@ -307,8 +297,7 @@ def place_api(query: str, location: str, point: str, radius: int = 1000) -> dict
         raise
 
 
-@mcp.tool()
-def regions_api(query: str) -> dict[str, Any]:
+def regions_tool(query: str) -> dict[str, Any]:
     """
     Regions API
 
@@ -318,7 +307,7 @@ def regions_api(query: str) -> dict[str, Any]:
         dict - response from 2GIS Regions API
     """
     logger.info(f"MCP Regions API request: query='{query}'")
-    
+
     try:
         result = dgis_search_api.regions_api(query)
         logger.debug("MCP Regions API response received successfully")
@@ -328,8 +317,7 @@ def regions_api(query: str) -> dict[str, Any]:
         raise
 
 
-@mcp.tool()
-def suggest_api(query: str, location: str | None = None) -> dict[str, Any]:
+def suggest_tool(query: str, location: str | None = None) -> dict[str, Any]:
     """
     Suggest API
 
@@ -340,7 +328,7 @@ def suggest_api(query: str, location: str | None = None) -> dict[str, Any]:
         dict - response from 2GIS Suggest API
     """
     logger.info(f"MCP Suggest API request: query='{query}', location='{location}'")
-    
+
     try:
         result = dgis_search_api.suggest_api(query, location)
         logger.debug("MCP Suggest API response received successfully")

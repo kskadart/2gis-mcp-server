@@ -16,3 +16,6 @@ dev = [
     "black==25.1.0",
     "ruff==0.12.12",
 ]
+
+[tool.ruff]
+line-length = 120

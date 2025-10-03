@@ -61,16 +61,18 @@ python3 -m src.main --transport stdio
 ### Available Options
 
 - `--transport`: Choose transport protocol (`stdio`, `sse`, or `streamable-http`). Default: `stdio`
+- `--host`: Host to bind the server to. Default: `0.0.0.0`
+- `--port`: Port to bind the server to. Default: `8101`
 - `--debug`: Enable debug mode for verbose logging
 
-Example with debug mode:
+Example with custom port and debug mode:
 ```bash
-uv run src/main.py --transport stdio --debug
+uv run src/main.py --transport streamable-http --host 0.0.0.0 --port 8101 --debug
 ```
 
 ### Running with Docker
 
-The easiest way to run the server is using Docker Compose with SSE transport:
+The easiest way to run the server is using Docker Compose with streamable-http transport:
 
 ```bash
 # Start the server
@@ -83,7 +85,7 @@ docker-compose logs -f
 docker-compose down
 ```
 
-The Docker container runs with SSE transport on port 8000, making it accessible at `http://localhost:8000`.
+The Docker container runs with streamable-http transport on port 8101, making it accessible at `http://localhost:8101`.
 
 ### Testing with MCP Inspector
 
@@ -93,7 +95,7 @@ The Docker container runs with SSE transport on port 8000, making it accessible 
 npx @modelcontextprotocol/inspector uv run src/main.py --transport stdio
 ```
 
-#### Testing SSE transport (Docker):
+#### Testing streamable-http transport (Docker):
 
 1. **Start the MCP Inspector:**
    ```bash
@@ -103,24 +105,22 @@ npx @modelcontextprotocol/inspector uv run src/main.py --transport stdio
 2. **Open your browser** and navigate to `http://localhost:6274`
 
 3. **Connect to your server:**
-   - Transport type: Select **"SSE"**
-   - URL: Enter `http://localhost:8000/sse`
+   - Transport type: Select **"SSE"** or **"HTTP"**
+   - URL: Enter `http://localhost:8101/mcp` (for SSE) or `http://localhost:8101` (for HTTP)
    - Click **"Connect"**
 
 4. **Test your tools** - You should now see all 6 available tools and can test them interactively!
-
-**Note:** When running the Docker container with SSE transport, make sure to connect to the `/sse` endpoint, not `/messages/`.
 
 ## Available Tools
 
 Once running, the MCP server exposes the following tools:
 
-- `place_api(query, location, point, radius)` - Search for places
-- `geocoder_api(query)` - Geocode addresses
-- `suggest_api(query, location)` - Get location suggestions
-- `categories_api(query, region_id)` - Search categories
-- `regions_api(query)` - Search regions
-- `markers_api(query, location)` - Get map markers
+- `place_tool(query, location, point, radius)` - Search for places
+- `geocoder_tool(query, location)` - Geocode addresses
+- `suggest_tool(query, location)` - Get location suggestions
+- `categories_tool(query, region_id)` - Search categories
+- `regions_tool(query)` - Search regions
+- `markers_tool(query, location)` - Get map markers
 
 ## Testing 2GIS API Directly
 

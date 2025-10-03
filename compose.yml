@@ -9,7 +9,7 @@ services:
     environment:
       - DGIS_API_KEY=${DGIS_API_KEY}
       - DGIS_SEARCH_API_URL=${DGIS_SEARCH_API_URL}
-    command: ["--transport", "sse", "--debug"]
+    command: ["--transport", "streamable-http", "--debug", "--port", "8101"]
     ports:
-      - 8000:8000
+      - 8101:8101
     restart: unless-stopped
