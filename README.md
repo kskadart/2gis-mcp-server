@@ -67,7 +67,7 @@ python3 -m src.main --transport stdio
 
 Example with custom port and debug mode:
 ```bash
-uv run src/main.py --transport streamable-http --host 0.0.0.0 --port 8101 --debug
+python3 -m src.main --transport streamable-http --host 0.0.0.0 --port 8101 --debug
 ```
 
 ### Running with Docker
