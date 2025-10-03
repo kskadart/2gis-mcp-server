@@ -105,8 +105,8 @@ npx @modelcontextprotocol/inspector uv run src/main.py --transport stdio
 2. **Open your browser** and navigate to `http://localhost:6274`
 
 3. **Connect to your server:**
-   - Transport type: Select **"SSE"** or **"HTTP"**
-   - URL: Enter `http://localhost:8101/mcp` (for SSE) or `http://localhost:8101` (for HTTP)
+   - Transport type: Select **"Streamable HTTP"**
+   - URL: Enter `http://localhost:8101/mcp`
    - Click **"Connect"**
 
 4. **Test your tools** - You should now see all 6 available tools and can test them interactively!
