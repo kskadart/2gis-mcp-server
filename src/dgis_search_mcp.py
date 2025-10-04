@@ -34,32 +34,53 @@ class DGisSearchAPI:
         self.api_key = api_key
         self.url = url
 
-    def place_api(self, query: str, location: str, point: str, radius: int = 1000) -> dict[str, Any]:
+    def _build_params(self, **kwargs) -> dict[str, Any]:
         """
-        Place API
+        Build params dict, filtering out None values.
+        
+        Args:
+            **kwargs: Arbitrary keyword arguments
+            
+        Returns:
+            dict with None values filtered out
+        """
+        return {k: v for k, v in kwargs.items() if v is not None}
+
+    def place_api(
+        self,
+        query: str,
+        point: str,
+        location: str,
+        radius: int = 1000
+    ) -> dict[str, Any]:
+        """
+        The Places API performs a search for organizations, buildings and places.
 
         Args:
-            query: str - place
-            location: str - location in format "latitude,longitude"
+            query: str - place, building, organization, etc.
             point: str - point in format "latitude,longitude"
+            location: str - location in format "latitude,longitude"
             radius: int - radius in meters (default: 1000)
 
         Returns:
             dict - response from 2GIS Place API
         """
-        logger.info(f"Place API request: query='{query}', location='{location}', point='{point}', radius={radius}")
+        logger.info(
+            f"Place API request: query='{query}', location='{location}', point='{point}', radius={radius}"
+        )
 
         try:
+            params = self._build_params(
+                q=query,
+                location=location,
+                point=point,
+                radius=radius,
+                sort="distance",
+                key=self.api_key,
+            )
             response: httpx.Response = httpx.get(
                 f"{self.url}/3.0/items",
-                params={
-                    "q": query,
-                    "point": point,
-                    "location": location,
-                    "radius": radius,
-                    "sort": "distance",
-                    "key": self.api_key,
-                },
+                params=params,
             )
             response.raise_for_status()
             logger.debug(f"Place API response status: {response.status_code}")
@@ -70,7 +91,9 @@ class DGisSearchAPI:
 
     def geocoder_api(self, query: str, location: str | None = None) -> dict[str, Any]:
         """
-        Geocoder API
+        The Geocoder API allows you to determine coordinates and get information about an object on the map
+        by its address (direct geocoding) and vice versa, to determine the address of an object on the map by
+        its coordinates (reverse geocoding).
 
         Args:
             query: str - query
@@ -81,13 +104,14 @@ class DGisSearchAPI:
         logger.info(f"Geocoder API request: query='{query}', location='{location}'")
 
         try:
+            params = self._build_params(
+                q=query,
+                location=location,
+                key=self.api_key,
+            )
             response: httpx.Response = httpx.get(
                 f"{self.url}/3.0/items/geocode",
-                params={
-                    "q": query,
-                    "location": location,
-                    "key": self.api_key,
-                },
+                params=params,
             )
             response.raise_for_status()
             logger.debug(f"Geocoder API response status: {response.status_code}")
@@ -98,7 +122,10 @@ class DGisSearchAPI:
 
     def suggest_api(self, query: str, location: str | None = None) -> dict[str, Any]:
         """
-        Suggest API
+        The Suggest API is intended for providing hints when searching for objects. To get tips, the user just
+        needs to start entering text in the search field. The API will suggest possible objects that match the
+        search criteria. The user will only have to choose from the proposed options. The suggestions take into
+        account the location of the user.
 
         Args:
             query: str - query
@@ -109,13 +136,14 @@ class DGisSearchAPI:
         logger.info(f"Suggest API request: query='{query}', location='{location}'")
 
         try:
+            params = self._build_params(
+                q=query,
+                location=location,
+                key=self.api_key,
+            )
             response: httpx.Response = httpx.get(
-                f"{self.url}/3.0/items/suggests",
-                params={
-                    "q": query,
-                    "location": location,
-                    "key": self.api_key,
-                },
+                f"{self.url}/3.0/suggests",
+                params=params,
             )
             response.raise_for_status()
             logger.debug(f"Suggest API response status: {response.status_code}")
@@ -126,7 +154,8 @@ class DGisSearchAPI:
 
     def categories_api(self, query: str, region_id: int = 1) -> dict[str, Any]:
         """
-        Categories API
+        The Categories API provides information about categories - groups of companies that share the same
+        business area.
 
         Args:
             query: str - query
@@ -137,13 +166,14 @@ class DGisSearchAPI:
         logger.info(f"Categories API request: query='{query}', region_id={region_id}")
 
         try:
+            params = self._build_params(
+                q=query,
+                region_id=region_id,
+                key=self.api_key,
+            )
             response: httpx.Response = httpx.get(
                 f"{self.url}/2.0/catalog/rubric/search",
-                params={
-                    "q": query,
-                    "region_id": region_id,
-                    "key": self.api_key,
-                },
+                params=params,
             )
             response.raise_for_status()
             logger.debug(f"Categories API response status: {response.status_code}")
@@ -154,7 +184,7 @@ class DGisSearchAPI:
 
     def regions_api(self, query: str) -> dict[str, Any]:
         """
-        Regions API
+        The Regions API is used to select a region that limits the searches for organizations, buildings, and places.
 
         Args:
             query: str - search by a region name
@@ -164,12 +194,13 @@ class DGisSearchAPI:
         logger.info(f"Regions API request: query='{query}'")
 
         try:
+            params = self._build_params(
+                q=query,
+                key=self.api_key,
+            )
             response: httpx.Response = httpx.get(
                 f"{self.url}/2.0/region/search",
-                params={
-                    "q": query,
-                    "key": self.api_key,
-                },
+                params=params,
             )
             response.raise_for_status()
             logger.debug(f"Regions API response status: {response.status_code}")
@@ -180,24 +211,26 @@ class DGisSearchAPI:
 
     def markers_api(self, query: str, location: str | None = None) -> dict[str, Any]:
         """
-        Markers API
+        The Markers API searches for organizations, buildings, and places to display markers on the map.
+        A marker is a representation of an object on the map, so the marker can only be an object with coordinates.
 
         Args:
             query: str - query
-            location: str - location in format "latitude,longitude"
+            location: str - location in format "latitude,longitude" (optional)
         Returns:
             dict - response from 2GIS Markers API
         """
         logger.info(f"Markers API request: query='{query}', location='{location}'")
 
         try:
+            params = self._build_params(
+                q=query,
+                location=location,
+                key=self.api_key,
+            )
             response: httpx.Response = httpx.get(
                 f"{self.url}/3.0/markers",
-                params={
-                    "q": query,
-                    "location": location,
-                    "key": self.api_key,
-                },
+                params=params,
             )
             response.raise_for_status()
             logger.debug(f"Markers API response status: {response.status_code}")
@@ -212,11 +245,11 @@ dgis_search_api = DGisSearchAPI(api_key=dgis_api_settings.api_key, url=dgis_api_
 
 def categories_tool(query: str, region_id: int = 1) -> dict[str, Any]:
     """
-    Categories API
+    The Categories API provides information about categories – groups of companies that share the same business area.
 
     Args:
         query: str - query
-        region_id: int - region ID
+        region_id: int - region ID 
     Returns:
         dict - response from 2GIS Categories API
     """
@@ -231,9 +264,11 @@ def categories_tool(query: str, region_id: int = 1) -> dict[str, Any]:
         raise
 
 
-def geocoder_tool(query: str, location: str | None = None) -> dict[str, Any]:
+def geocoder_tool(query: str, location: str = '') -> dict[str, Any]:
     """
-    Geocoder API
+    The Geocoder API allows you to determine coordinates and get information about an object on the map
+    by its address (direct geocoding) and vice versa, to determine the address of an object on the map by
+    its coordinates (reverse geocoding).
 
     Args:
         query: str - query
@@ -252,13 +287,14 @@ def geocoder_tool(query: str, location: str | None = None) -> dict[str, Any]:
         raise
 
 
-def markers_tool(query: str, location: str | None = None) -> dict[str, Any]:
+def markers_tool(query: str, location: str = '') -> dict[str, Any]:
     """
-    Markers API
+    The Markers API searches for organizations, buildings, and places to display markers on the map.
+    A marker is a representation of an object on the map, so the marker can only be an object with coordinates.
 
     Args:
         query: str - query
-        location: str - location in format "latitude,longitude"
+        location: str - location in format "latitude,longitude" (optional)
     Returns:
         dict - response from 2GIS Markers API
     """
@@ -275,10 +311,10 @@ def markers_tool(query: str, location: str | None = None) -> dict[str, Any]:
 
 def place_tool(query: str, location: str, point: str, radius: int = 1000) -> dict[str, Any]:
     """
-    Place API
+    The Places API performs a search for organizations, buildings and places.
 
     Args:
-        query: str - place
+        query: str - place, building, organization, etc.
         location: str - location in format "latitude,longitude"
         point: str - point in format "latitude,longitude"
         radius: int - radius in meters
@@ -286,7 +322,9 @@ def place_tool(query: str, location: str, point: str, radius: int = 1000) -> dic
     Returns:
         dict - response from 2GIS Place API
     """
-    logger.info(f"MCP Place API request: query='{query}', location='{location}', point='{point}', radius={radius}")
+    logger.info(
+        f"MCP Place API request: query='{query}', location='{location}', point='{point}', radius={radius}"
+    )
 
     try:
         result = dgis_search_api.place_api(query, location, point, radius)
@@ -299,7 +337,7 @@ def place_tool(query: str, location: str, point: str, radius: int = 1000) -> dic
 
 def regions_tool(query: str) -> dict[str, Any]:
     """
-    Regions API
+    The Regions API is used to select a region that limits the searches for organizations, buildings, and places.
 
     Args:
         query: str - search by a region name
@@ -317,9 +355,12 @@ def regions_tool(query: str) -> dict[str, Any]:
         raise
 
 
-def suggest_tool(query: str, location: str | None = None) -> dict[str, Any]:
+def suggest_tool(query: str, location: str = '') -> dict[str, Any]:
     """
-    Suggest API
+    The Suggest API is intended for providing hints when searching for objects. To get tips, the user just
+    needs to start entering text in the search field. The API will suggest possible objects that match the
+    search criteria. The user will only have to choose from the proposed options. The suggestions take into
+    account the location of the user.
 
     Args:
         query: str - query

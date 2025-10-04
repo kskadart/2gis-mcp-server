@@ -43,11 +43,11 @@ def main():
     # Initialize MCP with parsed host and port
     mcp = FastMCP("2gis-search-mcp", host=args.host, port=args.port)
     mcp.add_tool(categories_tool)
+    mcp.add_tool(geocoder_tool)
+    mcp.add_tool(markers_tool)
+    mcp.add_tool(place_tool)
     mcp.add_tool(regions_tool)
     mcp.add_tool(suggest_tool)
-    mcp.add_tool(place_tool)
-    mcp.add_tool(markers_tool)
-    mcp.add_tool(geocoder_tool)
 
     if args.debug:
         logger.debug("Debug mode enabled")
