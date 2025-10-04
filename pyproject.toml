@@ -16,3 +16,9 @@ dev = [
     "black==25.1.0",
     "ruff==0.12.12",
 ]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E501"]  # Enable line-too-long checks

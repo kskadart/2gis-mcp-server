@@ -3,7 +3,8 @@ FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim AS dev
 WORKDIR /app
 
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-install-project
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project
 
 FROM python:3.13-slim-trixie AS runtime
 
