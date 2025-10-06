@@ -13,3 +13,11 @@ services:
     ports:
       - 8101:8101
     restart: unless-stopped
+    networks:
+      - agent-common-network
+
+networks:
+  agent-common-network:
+    name: agent-common-network
+    driver: bridge
+
