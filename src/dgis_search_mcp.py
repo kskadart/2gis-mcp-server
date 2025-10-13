@@ -18,6 +18,7 @@ import httpx
 
 from src.settings import dgis_api_settings
 from src.logger import logger
+from src.models import GeocoderParams
 
 
 class DGisSearchAPI:
@@ -44,14 +45,14 @@ class DGisSearchAPI:
         Returns:
             dict with None values filtered out
         """
-        return {k: v for k, v in kwargs.items() if v is not None}
+        return {k: v for k, v in kwargs.items() if v is not None and (not isinstance(v, str) or v != "")}
 
     def place_api(
         self,
         query: str,
         point: str,
         location: str,
-        radius: int = 1000
+        radius: int = 100
     ) -> dict[str, Any]:
         """
         The Places API performs a search for organizations, buildings and places.
@@ -60,7 +61,7 @@ class DGisSearchAPI:
             query: str - place, building, organization, etc.
             point: str - point in format "latitude,longitude"
             location: str - location in format "latitude,longitude"
-            radius: int - radius in meters (default: 1000)
+            radius: int - radius in meters (default: 100)
 
         Returns:
             dict - response from 2GIS Place API
@@ -89,29 +90,33 @@ class DGisSearchAPI:
             logger.error(f"Place API error: {str(e)}")
             raise
 
-    def geocoder_api(self, query: str, location: str | None = None) -> dict[str, Any]:
+    def geocoder_api(self, params: GeocoderParams) -> dict[str, Any]:
         """
         The Geocoder API allows you to determine coordinates and get information about an object on the map
         by its address (direct geocoding) and vice versa, to determine the address of an object on the map by
         its coordinates (reverse geocoding).
 
         Args:
-            query: str - query
-            location: str - location in format "latitude,longitude" (optional)
+            params: GeocoderParams - validated geocoder parameters
+                (at least one of query or location must be provided and not empty)
         Returns:
             dict - response from 2GIS Geocoder API
+        Raises:
+            ValueError: If both query and location are None or empty (via Pydantic validation)
         """
-        logger.info(f"Geocoder API request: query='{query}', location='{location}'")
+        logger.info(f"Geocoder API request: query='{params.query}', location='{params.location}'")
 
         try:
-            params = self._build_params(
-                q=query,
-                location=location,
+            request_params = self._build_params(
+                q=params.query,
+                lat=params.lat,
+                lon=params.lon,
+                fields=params.fields,
                 key=self.api_key,
             )
             response: httpx.Response = httpx.get(
                 f"{self.url}/3.0/items/geocode",
-                params=params,
+                params=request_params,
             )
             response.raise_for_status()
             logger.debug(f"Geocoder API response status: {response.status_code}")
@@ -264,22 +269,37 @@ def categories_tool(query: str, region_id: int = 1) -> dict[str, Any]:
         raise
 
 
-def geocoder_tool(query: str, location: str = '') -> dict[str, Any]:
+def geocoder_tool(
+    query: str = '', 
+    lat: float | None = None,
+    lon: float | None = None,
+    fields: str = "items.point"
+) -> dict[str, Any]:
     """
     The Geocoder API allows you to determine coordinates and get information about an object on the map
     by its address (direct geocoding) and vice versa, to determine the address of an object on the map by
     its coordinates (reverse geocoding).
 
     Args:
-        query: str - query
-        location: str - location in format "latitude,longitude" (optional)
+        query: str - query (at least one of query or lat/lon must be provided)
+        lat: float - latitude (must be provided together with lon)
+        lon: float - longitude (must be provided together with lat)
+        fields: str - fields to include in response (default: "items.point")
     Returns:
         dict - response from 2GIS Geocoder API
+    Raises:
+        ValueError: If neither query nor lat/lon pair is provided, or if only one of lat/lon is provided
     """
-    logger.info(f"MCP Geocoder API request: query='{query}', location='{location}'")
+    logger.info(f"MCP Geocoder API request: query='{query}', lat={lat}, lon={lon}")
 
     try:
-        result = dgis_search_api.geocoder_api(query, location)
+        params_model = GeocoderParams(
+            query=query, 
+            lat=lat,
+            lon=lon,
+            fields=fields,
+        )
+        result = dgis_search_api.geocoder_api(params_model)
         logger.debug("MCP Geocoder API response received successfully")
         return result
     except Exception as e:
